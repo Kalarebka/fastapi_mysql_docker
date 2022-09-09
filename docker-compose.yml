@@ -1,0 +1,36 @@
+version: "3.8"
+
+services:
+  mysqldb:
+    container_name: mysqldb
+    build:
+      context: ./db
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      MYSQL_DATABASE: fastapi
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password12345
+      MYSQL_ROOT_PASSWORD: password12345
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: api
+    volumes:
+      - ./app:/app
+    ports:
+      - 8000:80
+    environment:
+      - DATABASE_URL=mysql+mysqlconnector://user:password12345@mysqldb:3306/fastapi
+    depends_on:
+      - mysqldb
+
+volumes:
+  mysql_data:
